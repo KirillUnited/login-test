@@ -5,8 +5,7 @@ class Login extends Component {
         super(props);
         this.state = {
             email: "",
-            password: "",
-            id: ""
+            password: ""
         }
     }
 
@@ -16,13 +15,17 @@ class Login extends Component {
 
     /** service */
     postData = (type, userData) => {
-        const BASE_URL = 'https://api.thewallscript.com/restful/'; // apiServer
+        // const BASE_URL = 'https://api.thewallscript.com/restful/'; // apiServer
         //let BASE_URL = 'http://localhost/PHP/';
+        const BASE_URL = 'https://jsonplaceholder.typicode.com';
 
         return new Promise((resolve, reject) => {
             fetch(BASE_URL + type, {
                 method: 'POST',
-                body: JSON.stringify(userData)
+                body: JSON.stringify(userData),
+                headers: {
+                  "Content-type": "application/json; charset=UTF-8"
+                }
             })
                 .then((response) => response.json())
                 .then((res) => {
@@ -37,7 +40,7 @@ class Login extends Component {
     login = (e) => {
         e.preventDefault();
 
-        let endPoint = 'login'; // - API call endpoint
+        let endPoint = '/posts'; // - API call endpoint
 
         if (this.state.email && this.state.password) {
             this.postData(endPoint, this.state).then((result) => {
@@ -55,9 +58,6 @@ class Login extends Component {
                     </div>
                     <div className="form-group">
                         <input name="password" type="password" className="form-control" id="password" placeholder="Enter password" onChange={this.handleChange} />
-                    </div>
-                    <div className="form-group">
-                        <input name="id" type="text" className="form-control" id="id" placeholder="Enter ID" onChange={this.handleChange} />
                     </div>
                     <button type="submit" className="btn btn-primary" onClick={this.login}>Submit</button>
                 </form>
