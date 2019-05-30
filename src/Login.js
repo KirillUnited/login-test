@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Account from './Account';
 
 class Login extends Component {
     constructor(props) {
@@ -61,6 +62,7 @@ class Login extends Component {
                     </div>
                     <button type="submit" className="btn btn-primary" onClick={this.login}>Submit</button>
                 </form>
+                <Account></Account>
             </div>
         );
     }
