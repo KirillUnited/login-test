@@ -25,7 +25,7 @@ class Login extends Component {
                 method: 'POST',
                 body: JSON.stringify(userData),
                 headers: {
-                  "Content-type": "application/json; charset=UTF-8"
+                    "Content-type": "application/json; charset=UTF-8"
                 }
             })
                 .then((response) => response.json())
@@ -49,8 +49,16 @@ class Login extends Component {
             });
         }
     }
+    componentDidMount() {
+        const BASE_URL = 'https://jsonplaceholder.typicode.com';
+        fetch(BASE_URL + '/posts').then(res => res.json()).then(data => {
+            this.setState({ posts: data });
+        });
+    }
 
     render() {
+        const POSTS = this.state.posts;
+        if (!POSTS) return <div>Loading...</div>;
         return (
             <div className="container">
                 <form>
@@ -62,7 +70,19 @@ class Login extends Component {
                     </div>
                     <button type="submit" className="btn btn-primary" onClick={this.login}>Submit</button>
                 </form>
-                <Account></Account>
+                {/* <Account></Account> */}
+                {POSTS.map((post, index) => {
+                    return (
+                        <div className="media" key={index}>
+                            <div className="media-left media-middle">
+                                {/* <img src={comment.avatar} alt="avatar" className="media-object" width="64px" height="64px" /> */}
+                            </div>
+                            <div className="media-body">
+                                <h4 className="media-heading">{post.title}</h4>
+                                <p className="media-text">{post.body}</p>
+                            </div>
+                        </div>)
+                })}
             </div>
         );
     }
