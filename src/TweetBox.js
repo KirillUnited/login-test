@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 
-class Login extends Component {
+class TweetBox extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            email: "",
-            password: "",
-        }
+        this.state = {}
     }
 
     handleChange = (e) => {
@@ -37,17 +34,17 @@ class Login extends Component {
         });
     }
 
-    login = (e) => {
-        e.preventDefault();
+    // login = (e) => {
+    //     e.preventDefault();
 
-        let endPoint = '/posts'; // - API call endpoint
+    //     let endPoint = '/posts'; // - API call endpoint
 
-        if (this.state.email && this.state.password) {
-            this.postData(endPoint, this.state).then((result) => {
-                console.log(result);
-            });
-        }
-    }
+    //     if (this.state.email && this.state.password) {
+    //         this.postData(endPoint, this.state).then((result) => {
+    //             console.log(result);
+    //         });
+    //     }
+    // }
 
     onFileUpload = (e) => {
         let reader = new FileReader();
@@ -103,32 +100,20 @@ class Login extends Component {
         const POSTS = this.state.posts;
         const USERS = this.state.users;
 
-        if (!POSTS) return <div>Loading...</div>;
+        if (!POSTS || !USERS) return <div>Loading...</div>;
         return (
             <div className="container">
-                {/* <form>
-                    <div className="form-group">
-                        <input name="email" type="email" className="form-control" id="email" placeholder="Enter email" onChange={this.handleChange} />
-                    </div>
-                    <div className="form-group">
-                        <input name="password" type="password" className="form-control" id="password" placeholder="Enter password" onChange={this.handleChange} />
-                    </div>
-                    <button type="submit" className="btn btn-primary" onClick={this.login}>Submit</button>
-                </form> */}
                 <div className="row">
-                    <div className="col-sm-4">
-                        <h4>USER</h4>
-                        <div className="media">
-                            <div className="media-left media-middle">
-                                <img src={USERS[0].picture.thumbnail} alt="avatar" className="media-object" width="64px" height="64px" />
-                            </div>
-                            <div className="media-body">
-                                <h4 className="media-heading">{USERS[0].name.first}</h4>
-                                <p className="media-text">{USERS[0].name.first}</p>
+                    <div className="col-sm-3">
+                        <div className="card">
+                            <img src={USERS[0].picture.large} alt="avatar" className="card-img-top" />
+                            <div className="card-body">
+                                <h4 className="card-title">{USERS[0].name.first}</h4>
+                                <p className="card-text">{USERS[0].name.first}</p>
                             </div>
                         </div>
                     </div>
-                    <div className="col-sm-4">
+                    <div className="col-sm-6">
                         <form name="FORM_TWEET" className="well clearfix" onSubmit={this.onSubmit}>
                             <div className="form-group">
                                 <label htmlFor="">Comment</label>
@@ -151,8 +136,8 @@ class Login extends Component {
                             )
                         })}
                     </div>
-                    <div className="col-sm-4">
-                        <h4>Members</h4>
+                    <div className="col-sm-3">
+                        <h4>Followers</h4>
                         {USERS.map((user, index) => {
                             return (
                                 <div className="media" key={index}>
@@ -173,4 +158,4 @@ class Login extends Component {
     }
 }
 
-export default Login;
+export default TweetBox;
