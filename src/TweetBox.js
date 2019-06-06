@@ -3,48 +3,31 @@ import React, { Component } from 'react';
 class TweetBox extends Component {
     constructor(props) {
         super(props);
-        this.state = {}
+        this.state = {
+            user: [],
+            auth_token: '5bcd9623fb6fc060274aace1',
+            user_posts: [],
+            user_followers: [],
+            postImg: '',
+            comment: ''
+        }
     }
 
     handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
     }
 
-    /** service */
-    postData = (type, userData) => {
-        // const BASE_URL = 'https://api.thewallscript.com/restful/'; // apiServer
-        //let BASE_URL = 'http://localhost/PHP/';
-        const BASE_URL = 'https://jsonplaceholder.typicode.com';
-
-        return new Promise((resolve, reject) => {
-            fetch(BASE_URL + type, {
-                method: 'POST',
-                body: JSON.stringify(userData),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            })
-                .then((response) => response.json())
-                .then((res) => {
-                    resolve(res);
-                })
-                .catch((error) => {
-                    reject(error);
+    getData = () => {
+        fetch('api/users/' + this.state.auth_token)
+            .then(res => res.json())
+            .then(json => {
+                this.setState({
+                    user: json,
+                    user_posts: json.posts,
+                    user_followers: json.followers
                 });
-        });
+            });
     }
-
-    // login = (e) => {
-    //     e.preventDefault();
-
-    //     let endPoint = '/posts'; // - API call endpoint
-
-    //     if (this.state.email && this.state.password) {
-    //         this.postData(endPoint, this.state).then((result) => {
-    //             console.log(result);
-    //         });
-    //     }
-    // }
 
     onFileUpload = (e) => {
         let reader = new FileReader();
@@ -64,11 +47,24 @@ class TweetBox extends Component {
         e.preventDefault();
 
         let form = document.forms.FORM_TWEET;
-        let endPoint = '/posts'; // - API call endpoint
+        let userData = { id: this.state.auth_token, img: this.state.postImg, comment: this.state.comment };
 
-        if (this.state.COMMENT) {
-            this.postData(endPoint, this.state).then((result) => {
-                console.log(result);
+        if (this.state.comment !== '') {
+            return new Promise((resolve, reject) => {
+                fetch('api/users', {
+                    method: 'PUT',
+                    body: JSON.stringify(userData),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                })
+                    .then((response) => response.json())
+                    .then((res) => {
+                        resolve(res);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
             });
         }
 
@@ -78,38 +74,24 @@ class TweetBox extends Component {
     }
 
     componentDidMount() {
-        const BASE_USERS_URL = 'https://randomuser.me/api/?inc&results=8&nat=gb';
-        const BASE_POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
-
-        Promise.all([
-            fetch(BASE_USERS_URL),
-            fetch(BASE_POSTS_URL)
-        ]).then(([users, posts]) => {
-            users.json().then(data => {
-                this.setState({ users: data.results });
-            });
-            posts.json().then(data => {
-                this.setState({ posts: data });
-            });
-        }).catch((err) => {
-            console.log(err);
-        });
+        this.getData();
     }
 
     render() {
-        const POSTS = this.state.posts;
-        const USERS = this.state.users;
+        const USER = this.state.user;
+        const USER_POSTS = this.state.user_posts;
+        const USER_FOLLOWERS = this.state.user_followers;
 
-        if (!POSTS || !USERS) return <div>Loading...</div>;
+        if (!USER) return <div>Loading...</div>;
+        console.log(USER_POSTS);
         return (
             <div className="container">
                 <div className="row">
                     <div className="col-sm-3">
                         <div className="card">
-                            <img src={USERS[0].picture.large} alt="avatar" className="card-img-top" />
+                            <img src={USER.avatarImageURL} alt="avatar" className="card-img-top" />
                             <div className="card-body">
-                                <h4 className="card-title">{USERS[0].name.first}</h4>
-                                <p className="card-text">{USERS[0].name.first}</p>
+                                <h4 className="card-title">{USER.name}</h4>
                             </div>
                         </div>
                     </div>
@@ -117,7 +99,7 @@ class TweetBox extends Component {
                         <form name="FORM_TWEET" className="well clearfix" onSubmit={this.onSubmit}>
                             <div className="form-group">
                                 <label htmlFor="">Comment</label>
-                                <textarea className="form-control" name="COMMENT" id="COMMENT" onChange={this.handleChange}></textarea>
+                                <textarea className="form-control" name="comment" id="comment" onChange={this.handleChange}></textarea>
                             </div>
                             <button className="btn btn-primary pull-right">Publish</button>
                             <label type="button" className="btn btn-default pull-right">
@@ -125,11 +107,13 @@ class TweetBox extends Component {
                                 <input type="file" name="FILE" id="" hidden onChange={this.onFileUpload} />
                             </label>
                         </form>
-                        {POSTS.map((post, index) => {
+                        {USER_POSTS.map((post, index) => {
                             return (
                                 <div className="media" key={index}>
+                                    <div className="media-left media-middle">
+                                        <img src={post.img} alt="img" className="media-object" width="64px" height="64px" />
+                                    </div>
                                     <div className="media-body">
-                                        <h4 className="media-heading">{post.title}</h4>
                                         <p className="media-text">{post.body}</p>
                                     </div>
                                 </div>
@@ -138,15 +122,14 @@ class TweetBox extends Component {
                     </div>
                     <div className="col-sm-3">
                         <h4>Followers</h4>
-                        {USERS.map((user, index) => {
+                        {USER_FOLLOWERS && USER_FOLLOWERS.map((follower, index) => {
                             return (
                                 <div className="media" key={index}>
                                     <div className="media-left media-middle">
-                                        <img src={user.picture.thumbnail} alt="avatar" className="media-object" width="64px" height="64px" />
+                                        <img src={follower.imgURL} alt="avatar" className="media-object" width="64px" height="64px" />
                                     </div>
                                     <div className="media-body">
-                                        <h4 className="media-heading">{user.name.first}</h4>
-                                        <p className="media-text">{user.name.last}</p>
+                                        <h4 className="media-heading">{follower.name}</h4>
                                     </div>
                                 </div>
                             )

@@ -67,8 +67,9 @@ function NoMatch({ location }) {
 
 class Login extends Component {
     state = {
-        user: 'admin',
-        pswd: 'admin',
+        auth_token: '5bcd9623fb6fc060274aace1',
+        username: '',
+        password: '',
         redirectToReferrer: false
     };
 
@@ -77,6 +78,10 @@ class Login extends Component {
             this.setState({ redirectToReferrer: true });
         });
     };
+
+    handleChange = (e) => {
+        this.setState({ [e.target.name]: e.target.value });
+    }
 
     // login = (e) => {
     //     e.preventDefault();
@@ -92,29 +97,26 @@ class Login extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const FORM = e.target.form,
-            INPUT_USER_VALUE = FORM.elements.USER.value,
-            INPUT_PASSWORD_VALUE = FORM.elements.PASSWORD.value;
-        let isValid = false;
+        if (this.state.username && this.state.password) {
 
-        if (INPUT_USER_VALUE === this.state.user && INPUT_USER_VALUE) {
-            isValid = true;
-            FORM.elements.USER.removeAttribute('style');
-        } else {
-            isValid = false;
-            FORM.elements.USER.style.borderColor = '#d0021b';
-        }
-
-        if (INPUT_PASSWORD_VALUE === this.state.user && INPUT_PASSWORD_VALUE) {
-            isValid = true;
-            FORM.elements.PASSWORD.removeAttribute('style');
-        } else {
-            isValid = false;
-            FORM.elements.PASSWORD.style.borderColor = '#d0021b';
-        }
-
-        if (isValid) {
-            this.login();
+            fetch('api/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: this.state.username,
+                    password: this.state.password
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            })
+                .then(response => response.json())
+                .then(json => {
+                    if (json) {
+                        this.login();
+                    } else {
+                        console.log('error');
+                    }
+                })
         }
     }
 
@@ -127,18 +129,18 @@ class Login extends Component {
         return (
             <div className="container">
                 <div className="row">
-                    <div className="alert alert-info col-12">user: 'admin', pswd: 'admin'</div>
+                    <div className="alert alert-info col-12">user: 'roy', pswd: '123'</div>
                     <form className="col-sm-4 col-sm-push-4">
                         <h3>Sign In</h3>
                         <div className="form-group input-group">
                             <span className="input-group-addon" id="basic-addon1">@</span>
-                            <input className="form-control" placeholder="Username" aria-describedby="basic-addon1" name="USER" />
+                            <input className="form-control" placeholder="Username" aria-describedby="basic-addon1" name="username" onChange={this.handleChange} />
                         </div>
                         <div className="form-group input-group">
                             <span className="input-group-addon" id="basic-addon2">
                                 <span className="glyphicon glyphicon-lock" aria-hidden="true"></span>
                             </span>
-                            <input className="form-control" placeholder="Password" aria-describedby="basic-addon2" name="PASSWORD" />
+                            <input className="form-control" placeholder="Password" aria-describedby="basic-addon2" name="password" onChange={this.handleChange} />
                         </div>
                         <button onClick={this.handleSubmit} className="btn btn-primary" disabled="">Log In</button>
                     </form>
